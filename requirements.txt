@@ -1,1 +1,2 @@
 rdflib==6.3.2
+sparql-dataframe==0.4
