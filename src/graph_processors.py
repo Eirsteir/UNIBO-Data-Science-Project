@@ -14,10 +14,11 @@ ex = Namespace("https://dl.ficlit.unibo.it/")
 
 class CollectionProcessor(Processor):
 
-    def upload_data(self, filename):
+    def uploadData(self, filename):
         graph = self.__load_iiif_data_from_file(filename)
         self.__save_graph(graph)
         print("Finished uploading data!")
+        return True
 
     def __load_iiif_data_from_file(self, filename):
         print("Loading rdf data from ", filename, "...")
@@ -65,7 +66,7 @@ class TriplestoreQueryProcessor(QueryProcessor):
         PREFIX iiif: <{iiif}>
     """
 
-    def get_entity_by_id(self, id):
+    def getEntityById(self, id):
         query = f"""
         {self.PREFIXES}
 
@@ -76,7 +77,7 @@ class TriplestoreQueryProcessor(QueryProcessor):
         """
         return get(self.db_path_or_url, query, True)
 
-    def get_all_canvases(self):
+    def getAllCanvases(self):
         query = f"""
         {self.PREFIXES}
 
@@ -87,7 +88,7 @@ class TriplestoreQueryProcessor(QueryProcessor):
         """
         return get(self.db_path_or_url, query, True)
 
-    def get_all_collections(self):
+    def getAllCollections(self):
         query = f"""
          {self.PREFIXES}
 
@@ -98,7 +99,7 @@ class TriplestoreQueryProcessor(QueryProcessor):
          """
         return get(self.db_path_or_url, query, True)
 
-    def get_all_manifests(self):
+    def getAllManifests(self):
         query = f"""
          {self.PREFIXES}
 
@@ -109,7 +110,7 @@ class TriplestoreQueryProcessor(QueryProcessor):
          """
         return get(self.db_path_or_url, query, True)
 
-    def get_canvases_in_collection(self, collection_id):
+    def getCanvasesInCollection(self, collection_id):
         query = f"""
          {self.PREFIXES}
          
@@ -122,7 +123,7 @@ class TriplestoreQueryProcessor(QueryProcessor):
          """
         return get(self.db_path_or_url, query, True)
 
-    def get_canvases_in_manifest(self, manifest_id):
+    def getCanvasesInManifest(self, manifest_id):
         query = f"""
          {self.PREFIXES}
 
@@ -134,7 +135,7 @@ class TriplestoreQueryProcessor(QueryProcessor):
          """
         return get(self.db_path_or_url, query, True)
 
-    def get_entities_with_label(self, label):
+    def getEntitiesWithLabel(self, label):
         query = f"""
          {self.PREFIXES}
 
@@ -145,7 +146,7 @@ class TriplestoreQueryProcessor(QueryProcessor):
         """
         return get(self.db_path_or_url, query, True)
 
-    def get_manifests_in_collection(self, collection_id):
+    def getManifestsInCollection(self, collection_id):
         query = f"""
         {self.PREFIXES}
         

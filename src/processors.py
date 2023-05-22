@@ -1,20 +1,20 @@
-from src.models import Annotation
+from src.models import Annotation, Image, Canvas, Collection, Manifest, IdentifiableEntity, EntityWithMetadata
 
 
 class Processor:
     def __init__(self):
         self.db_path_or_url = ""
 
-    def get_db_path_or_url(self):
+    def getDbPathOrUrl(self):
         return self.db_path_or_url
 
-    def set_db_path_or_url(self, db_path_or_url):
+    def setDbPathOrUrl(self, db_path_or_url):
         self.db_path_or_url = db_path_or_url
-
+        return True
 
 class QueryProcessor(Processor):
 
-    def get_entity_by_id(self, id):
+    def getEntityById(self, id):
         raise NotImplementedError
 
 
@@ -22,111 +22,172 @@ class GenericQueryProcessor:
     def __init__(self):
         self.query_processors = []
 
-    def clean_query_processors(self):
+    def cleanQueryProcessors(self):
         self.query_processors = []
+        return True
 
-    def add_query_processor(self, query_processor):
+    def addQueryProcessor(self, query_processor):
         self.query_processors.append(query_processor)
+        return True
 
-    def get_all_annotations(self):
-        annotations = []
+    def getAllAnnotations(self):
+        result = []
         for query_processor in self.query_processors:
             if hasattr(query_processor, "getAllAnnotations"):
-                annotations += query_processor.getAllAnnotations()
-        return annotations
+                df = query_processor.getAllAnnotations()
+                result += [(Annotation(row.id, row.motivation, row.body, row.target)) for index, row in df.iterrows()]
 
-    def get_all_canvas(self):
-        canvases = []
+        return result
+
+    def getAllCanvas(self):
+        result = []
         for query_processor in self.query_processors:
-            if hasattr(query_processor, "get_all_canvases"):
-                canvases += query_processor.get_all_canvases()
-        return canvases
+            if hasattr(query_processor, "getAllCanvases"):
+                df = query_processor.getAllCanvases()
+                result += [(Canvas(row.canvas)) for index, row in df.iterrows()]
 
-    def get_all_collections(self):
-        collections = []
+        return result
+
+    def getAllCollections(self):
+        result = []
         for query_processor in self.query_processors:
-            if hasattr(query_processor, "get_all_collections"):
-                collections += query_processor.get_all_collections()
-        return collections
+            if hasattr(query_processor, "getAllCollections"):
+                df = query_processor.getAllCollections()
+                result += [(Collection(row.collection, [])) for index, row in df.iterrows()]
 
-    def get_all_images(self):
-        images = []
+        return result
+
+    def getAllImages(self):
+        result = []
         for query_processor in self.query_processors:
             if hasattr(query_processor, "getAllImages"):
-                images += query_processor.getAllImages()
-        return images
+                df = query_processor.getAllImages()
+                result += [(Image(row)) for index, row in df.iterrows()]  # TODO: dobbeltsjekk
 
-    def get_all_manifests(self):
-        collections = []
+        return result
+
+    def getAllManifests(self):
+        result = []
         for query_processor in self.query_processors:
-            if hasattr(query_processor, "get_all_manifests"):
-                collections += query_processor.get_all_manifests()
-        return collections
+            if hasattr(query_processor, "getAllManifests"):
+                df = query_processor.getAllManifests()
+                result += [(Manifest(row.manifest, [])) for index, row in df.iterrows()]
+                print(result[0].id)
 
-    def get_all_annotations_to_canvas(self, canvas_id):
-        annotations_to_canvas = []
-        annotations = self.get_all_annotations()
-        for annotation in annotations:
-            for query_processor in self.query_processors:
-                canvas = query_processor.get_entity_by_id(annotation.target)
-            annotations_to_canvas += Annotation(annotation.id, annotation.body, canvas)
+        return result
 
-        return annotations
-
-    def get_annotations_to_collection(self, collection_id):
+    def getAnnotationsToCanvas(self, canvas_id):
+        # annotations = []
+        # for query_processor in self.query_processors:
+        #     if hasattr(query_processor, "getAnnotationsWithTarget"):
+        #         annotations += query_processor.getAnnotationsWithTarget(target=canvas_id).values.tolist()
+        #
+        # annotations = list(map(lambda a: Annotation(a.id, a.motivation, a.body, a.target), annotations))
+        # return annotations
         pass
 
-    def get_annotations_to_manifest(self, manifest_id):
+    def getAnnotationsToCollection(self, collection_id):  # vent
         pass
 
-    def get_annotations_with_body(self, body_id):
+    def getAnnotationsToManifest(self, manifest_id):  # vent
         pass
 
-    def get_annotations_with_target(self, target_id):
-        pass
-
-    def get_annotations_with_body_and_target(self, body_id, target_id):
-        pass
-
-    def get_canvases_in_collection(self, collection_id):
-        canvases = []
+    def getAnnotationsWithBody(self, body_id):
+        result = []
         for query_processor in self.query_processors:
-            if hasattr(query_processor, "get_canvases_in_collection"):
-                canvases += query_processor.get_canvases_in_collection(collection_id)
-        return canvases
+            if hasattr(query_processor, "getAnnotationsWithBody"):
+                df = query_processor.getAnnotationsWithBody(body_id)
+                result += [(Annotation(row.id, row.motivation, row.body, row.target)) for index, row in df.iterrows()]
 
-    def get_canvases_in_manifest(self, manifest_id):
-        canvases = []
-        for query_processor in self.query_processors:
-            if hasattr(query_processor, "get_canvases_in_manifest"):
-                canvases += query_processor.get_canvases_in_manifest(manifest_id)
-        return canvases
+        return result
 
-    def get_entity_by_id(self, id):
+    def getAnnotationsWithTarget(self, target_id):
+        result = []
         for query_processor in self.query_processors:
-            if entity := query_processor.get_entity_by_id(id):
-                return entity
+            if hasattr(query_processor, "getAnnotationsWithTarget"):
+                df = query_processor.getAnnotationsWithTarget(target_id)
+                result += [(Annotation(row.id, row.motivation, row.body, row.target)) for index, row in df.iterrows()]
+
+        return result
+
+    def getAnnotationsWithBodyAndTarget(self, body_id, target_id):
+        result = []
+        for query_processor in self.query_processors:
+            if hasattr(query_processor, "getAnnotationsWithBodyAndTarget"):
+                df = query_processor.getAnnotationsWithBodyAndTarget(body_id, target_id)
+                result += [(Annotation(row.id, row.motivation, row.body, row.target)) for index, row in df.iterrows()]
+
+        return result
+
+    def getCanvasesInCollection(self, collection_id):
+        result = []
+        for query_processor in self.query_processors:
+            if hasattr(query_processor, "getCanvasesInCollection"):
+                df = query_processor.getCanvasesInCollection(collection_id)
+                result += [(Canvas(row.canvas)) for index, row in df.iterrows()]
+
+        return result
+
+    def getCanvasesInManifest(self, manifest_id):
+        result = []
+        for query_processor in self.query_processors:
+            if hasattr(query_processor, "getCanvasesInManifest"):
+                df = query_processor.getCanvasesInManifest(manifest_id)
+                result += [(Canvas(row.canvas)) for index, row in df.iterrows()]
+
+        return result
+
+    def getEntityById(self, id):
+        for query_processor in self.query_processors:
+            if entity := query_processor.getEntityById(id):
+                print(entity)
+                return IdentifiableEntity(entity)
         return None
 
-    def get_entities_with_creator(self, creator_name):
-        pass
-
-    def get_entities_with_label(self, label):
-        entities = []
+    def getEntitiesWithCreator(self, creator_name):
+        result = []
         for query_processor in self.query_processors:
-            if hasattr(query_processor, "get_entities_with_label"):
-                entities += query_processor.get_entities_with_label(label)
-        return entities
+            if hasattr(query_processor, "getEntitiesWithCreator"):
+                df = query_processor.getEntitiesWithCreator(creator_name).values.tolist()
+                result += [(EntityWithMetadata(row.id, row.label, row.title, row.creator)) for index, row in df.iterrows()]
 
-    def get_entities_with_title(self, title):
-        pass
+        return result
 
-    def get_images_annotating_canvas(self, canvas_id):
-        pass
-
-    def get_manifests_in_collection(self, collection_id):
-        manifests = []
+    def getEntitiesWithLabel(self, label):
+        result = []
         for query_processor in self.query_processors:
-            if hasattr(query_processor, "get_manifests_in_collection"):
-                manifests += query_processor.get_manifests_in_collection(collection_id)
-        return manifests
+            if hasattr(query_processor, "getEntitiesWithLabel"):
+                df = query_processor.getEntitiesWithLabel(label)
+                result += [(EntityWithMetadata(row.entity, row.entity.label)) for index, row in df.iterrows()]
+
+        return result
+
+    def getEntitiesWithTitle(self, title):
+        result = []
+        for query_processor in self.query_processors:
+            if hasattr(query_processor, "getEntitiesWithTitle"):
+                df = query_processor.getEntitiesWithTitle(title).values.tolist()
+                result += [(EntityWithMetadata(row.id, row.label, row.title, row.creator)) for index, row in df.iterrows()]
+
+        result = list(map(lambda a: Annotation(a.id, a.motivation, a.body, a.target), result))
+
+        return result
+
+    def getImagesAnnotatingCanvas(self, canvas_id):
+        result = []
+        for query_processor in self.query_processors:
+            if hasattr(query_processor, "getAnnotationsWithTarget"):
+                annotations = query_processor.getAnnotationsWithTarget(canvas_id).values.tolist()
+                for annotation in annotations:
+                    result += Image(annotation.body)
+
+        return result
+
+    def getManifestsInCollection(self, collection_id):
+        result = []
+        for query_processor in self.query_processors:
+            if hasattr(query_processor, "getManifestsInCollection"):
+                df = query_processor.getManifestsInCollection(collection_id)
+                result += [(Manifest(row.id, [])) for index, row in df.iterrows()]
+
+        return result

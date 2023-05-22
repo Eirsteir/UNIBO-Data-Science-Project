@@ -28,7 +28,7 @@ if __name__ == '__main__':
     met_dp.uploadData("data/metadata.csv")'''
 
     rel_qp = RelationalQueryProcessor()
-    rel_qp.set_db_path_or_url(rel_path)
+    rel_qp.setDbPathOrUrl(rel_path)
     res = rel_qp.getEntitiesWithTitle("Raimondi, Giuseppe")
     print(res)
 

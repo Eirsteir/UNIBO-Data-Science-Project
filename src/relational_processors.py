@@ -17,7 +17,7 @@ class AnnotationProcessor(Processor):
                                       "body": "string"
                                   })
 
-        db = self.get_db_path_or_url()
+        db = self.getDbPathOrUrl()
 
         with connect(db) as con:
             annotations.to_sql(
@@ -38,7 +38,7 @@ class MetadataProcessor(Processor):
                                    "creator": "string",
                                })
 
-        db = self.get_db_path_or_url()
+        db = self.getDbPathOrUrl()
 
         with connect(db) as con:
             metadata.to_sql(
@@ -103,15 +103,6 @@ class RelationalQueryProcessor(QueryProcessor):
 
         return df_metadata_with_creator_sql
 
-    def getEntitiesWithLabel(self, label):
-
-        db = self.db_path_or_url
-        with connect(db) as con:
-            query = f"SELECT * FROM Metadata WHERE label LIKE '%{label}%'"
-            df_metadata_with_label_sql = pd.read_sql(query, con)
-
-        return df_metadata_with_label_sql
-
     def getEntitiesWithTitle(self, title):
 
         db = self.db_path_or_url
@@ -120,3 +111,12 @@ class RelationalQueryProcessor(QueryProcessor):
             df_metadata_with_title_sql = pd.read_sql(query, con)
 
         return df_metadata_with_title_sql
+
+    def getEntityById(self, id):
+
+        db = self.db_path_or_url
+        with connect(db) as con:
+            query = f"SELECT * FROM Metadata WHERE id='{id}'"
+            df_metadata_with_id_sql = pd.read_sql(query, con)
+
+        return df_metadata_with_id_sql
