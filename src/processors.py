@@ -16,8 +16,8 @@ class QueryProcessor(Processor):
 
 
 class GenericQueryProcessor:
-    def __init__(self, query_processors):
-        self.query_processors = query_processors
+    def __init__(self):
+        self.query_processors = []
 
     def clean_query_processors(self):
         self.query_processors = []
@@ -26,19 +26,35 @@ class GenericQueryProcessor:
         self.query_processors.append(query_processor)
 
     def get_all_annotations(self):
-        pass
+        annotations = []
+        for query_processor in self.query_processors:
+            if hasattr(query_processor, "getAllAnnotations"):
+                annotations += query_processor.getAllAnnotations()
+        return annotations
 
     def get_all_canvas(self):
-        pass
+        canvases = []
+        for query_processor in self.query_processors:
+            if hasattr(query_processor, "get_all_canvases"):
+                canvases += query_processor.get_all_canvases()
+        return canvases
 
     def get_all_collections(self):
-        pass
+        collections = []
+        for query_processor in self.query_processors:
+            if hasattr(query_processor, "get_all_collections"):
+                collections += query_processor.get_all_collections()
+        return collections
 
     def get_all_images(self):
         pass
 
     def get_all_manifests(self):
-        pass
+        collections = []
+        for query_processor in self.query_processors:
+            if hasattr(query_processor, "get_all_manifests"):
+                collections += query_processor.get_all_manifests()
+        return collections
 
     def get_all_annotations_to_canvas(self, canvas_id):
         pass
@@ -59,19 +75,34 @@ class GenericQueryProcessor:
         pass
 
     def get_canvases_in_collection(self, collection_id):
-        pass
+        canvases = []
+        for query_processor in self.query_processors:
+            if hasattr(query_processor, "get_canvases_in_collection"):
+                canvases += query_processor.get_canvases_in_collection(collection_id)
+        return canvases
 
     def get_canvases_in_manifest(self, manifest_id):
-        pass
+        canvases = []
+        for query_processor in self.query_processors:
+            if hasattr(query_processor, "get_canvases_in_manifest"):
+                canvases += query_processor.get_canvases_in_manifest(manifest_id)
+        return canvases
 
     def get_entity_by_id(self, id):
-        pass
+        for query_processor in self.query_processors:
+            if entity := query_processor.get_entity_by_id(id):
+                return entity
+        return None
 
     def get_entities_with_creator(self, creator_name):
         pass
 
     def get_entities_with_label(self, label):
-        pass
+        entities = []
+        for query_processor in self.query_processors:
+            if hasattr(query_processor, "get_entities_with_label"):
+                entities += query_processor.get_entities_with_label(label)
+        return entities
 
     def get_entities_with_title(self, title):
         pass
@@ -80,4 +111,8 @@ class GenericQueryProcessor:
         pass
 
     def get_manifests_in_collection(self, collection_id):
-        pass
+        manifests = []
+        for query_processor in self.query_processors:
+            if hasattr(query_processor, "get_manifests_in_collection"):
+                manifests += query_processor.get_manifests_in_collection(collection_id)
+        return manifests
