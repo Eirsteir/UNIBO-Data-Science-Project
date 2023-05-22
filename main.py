@@ -1,5 +1,7 @@
-# from src.graph_processors import CollectionProcessor, TriplestoreQueryProcessor
 from src.relational_processors import AnnotationProcessor, MetadataProcessor, RelationalQueryProcessor
+from src.graph_processors import CollectionProcessor, TriplestoreQueryProcessor
+from src.processors import GenericQueryProcessor
+
 
 if __name__ == '__main__':
     '''grp_endpoint = 'http://127.0.0.1:8889/bigdata/sparql'
@@ -10,6 +12,7 @@ if __name__ == '__main__':
     # col_dp.upload_data("data/collection-2.json")
 
     grp_qp = TriplestoreQueryProcessor()
+
     grp_qp.set_db_path_or_url(grp_endpoint)
     res = grp_qp.get_entity_by_id("https://dl.ficlit.unibo.it/iiif/28429/collection")
     print(res)'''
@@ -28,3 +31,12 @@ if __name__ == '__main__':
     rel_qp.set_db_path_or_url(rel_path)
     res = rel_qp.getEntitiesWithTitle("Raimondi, Giuseppe")
     print(res)
+
+    # grp_qp.set_db_path_or_url(grp_endpoint)
+    # res = grp_qp.get_entity_by_id("https://dl.ficlit.unibo.it/iiif/28429/collection")
+    # print(res)
+
+    generic_query_processor = GenericQueryProcessor()
+    generic_query_processor.add_query_processor(grp_qp)
+    generic_query_processor.get_all_annotations()
+
