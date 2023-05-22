@@ -7,3 +7,9 @@ class Processor:
 
     def set_db_path_or_url(self, db_path_or_url):
         self.db_path_or_url = db_path_or_url
+
+
+class QueryProcessor(Processor):
+
+    def get_entity_by_id(self, id):
+        raise NotImplementedError

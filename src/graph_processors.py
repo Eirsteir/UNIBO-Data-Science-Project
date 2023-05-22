@@ -4,7 +4,7 @@ from sparql_dataframe import get
 from rdflib import Graph, Namespace, URIRef, Literal, RDF
 from rdflib.plugins.stores.sparqlstore import SPARQLUpdateStore
 
-from src.processors import Processor
+from src.processors import Processor, QueryProcessor
 
 # Define the namespaces used in the RDF schema
 rdf = Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
@@ -57,13 +57,24 @@ class CollectionProcessor(Processor):
         store.close()
 
 
-class TriplestoreQueryProcessor(Processor):
+class TriplestoreQueryProcessor(QueryProcessor):
 
     PREFIXES = f"""
         PREFIX rdf:  <{rdf}>
         PREFIX ex: <{ex}>
         PREFIX iiif: <{iiif}>
     """
+
+    def get_entity_by_id(self, id):
+        query = f"""
+        {self.PREFIXES}
+
+        SELECT * 
+        WHERE {{ 
+            <{id}> rdf:type ?o . 
+        }}
+        """
+        return get(self.db_path_or_url, query, True)
 
     def get_all_canvases(self):
         query = f"""
