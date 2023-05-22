@@ -76,6 +76,15 @@ class RelationalQueryProcessor(QueryProcessor):
 
         return df_annontations_with_image_sql
 
+    def getAnnotationsWithTarget(self, target):
+
+        db = self.db_path_or_url
+        with connect(db) as con:
+            query = f"SELECT * FROM Annontations WHERE target='{target}'"
+            df_annontations_with_target_sql = pd.read_sql(query, con)
+
+        return df_annontations_with_target_sql
+
     def getAnnotationsWithBodyAndTarget(self, body, target):
 
         db = self.db_path_or_url
