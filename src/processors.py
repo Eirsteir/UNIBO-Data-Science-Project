@@ -1,3 +1,6 @@
+from src.models import Annotation
+
+
 class Processor:
     def __init__(self):
         self.db_path_or_url = ""
@@ -47,7 +50,11 @@ class GenericQueryProcessor:
         return collections
 
     def get_all_images(self):
-        pass
+        images = []
+        for query_processor in self.query_processors:
+            if hasattr(query_processor, "getAllImages"):
+                images += query_processor.getAllImages()
+        return images
 
     def get_all_manifests(self):
         collections = []
@@ -57,7 +64,14 @@ class GenericQueryProcessor:
         return collections
 
     def get_all_annotations_to_canvas(self, canvas_id):
-        pass
+        annotations_to_canvas = []
+        annotations = self.get_all_annotations()
+        for annotation in annotations:
+            for query_processor in self.query_processors:
+                canvas = query_processor.get_entity_by_id(annotation.target)
+            annotations_to_canvas += Annotation(annotation.id, annotation.body, canvas)
+
+        return annotations
 
     def get_annotations_to_collection(self, collection_id):
         pass
