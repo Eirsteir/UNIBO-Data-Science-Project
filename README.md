@@ -10,6 +10,8 @@ docker run --name blazegraph -d -p 8889:8080 lyrasis/blazegraph:2.1.5
 docker logs -f blazegraph
 ```
 
+Enter Blazegraph workbench on http://localhost:8889/bigdata/
+
 ## Data
 
 Exemplar data for testing the project have been made available. In particular:

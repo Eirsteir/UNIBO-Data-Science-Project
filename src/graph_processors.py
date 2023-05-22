@@ -124,7 +124,24 @@ class TriplestoreQueryProcessor(Processor):
         return get(self.db_path_or_url, query, True)
 
     def get_entities_with_label(self, label):
-        pass
+        query = f"""
+         {self.PREFIXES}
+
+        SELECT ?entity 
+        WHERE {{
+          ?entity iiif:label '{label}'
+        }}
+        """
+        return get(self.db_path_or_url, query, True)
 
     def get_manifests_in_collection(self, collection_id):
-        pass
+        query = f"""
+        {self.PREFIXES}
+        
+        SELECT ?manifest
+        WHERE {{
+          <{collection_id}> iiif:item ?manifest .
+          ?manifest a iiif:Manifest .
+        }}
+        """
+        return get(self.db_path_or_url, query, True)
