@@ -111,12 +111,3 @@ class RelationalQueryProcessor(QueryProcessor):
             df_metadata_with_title_sql = pd.read_sql(query, con)
 
         return df_metadata_with_title_sql
-
-    def getEntityById(self, id):
-
-        db = self.db_path_or_url
-        with connect(db) as con:
-            query = f"SELECT * FROM Metadata WHERE id='{id}'"
-            df_metadata_with_id_sql = pd.read_sql(query, con)
-
-        return df_metadata_with_id_sql

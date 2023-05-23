@@ -15,7 +15,7 @@ class Processor:
 class QueryProcessor(Processor):
 
     def getEntityById(self, id):
-        raise NotImplementedError
+        pass
 
 
 class GenericQueryProcessor:
@@ -72,25 +72,41 @@ class GenericQueryProcessor:
             if hasattr(query_processor, "getAllManifests"):
                 df = query_processor.getAllManifests()
                 result += [(Manifest(row.manifest, [])) for index, row in df.iterrows()]
-                print(result[0].id)
 
         return result
 
     def getAnnotationsToCanvas(self, canvas_id):
-        # annotations = []
-        # for query_processor in self.query_processors:
-        #     if hasattr(query_processor, "getAnnotationsWithTarget"):
-        #         annotations += query_processor.getAnnotationsWithTarget(target=canvas_id).values.tolist()
-        #
-        # annotations = list(map(lambda a: Annotation(a.id, a.motivation, a.body, a.target), annotations))
-        # return annotations
-        pass
+        result = []
+        for query_processor in self.query_processors:
+            if hasattr(query_processor, "getAnnotationsWithTarget"):
+                df = query_processor.getAnnotationsWithTarget(canvas_id)
+                canvas = self.getEntityById(canvas_id)
+                result += [(Annotation(row.id, row.motivation, row.body, canvas)) for index, row in df.iterrows()]
+
+        return result
 
     def getAnnotationsToCollection(self, collection_id):  # vent
-        pass
+        result = []
+        for query_processor in self.query_processors:
+            if hasattr(query_processor, "getCanvasesInCollection"):
+                df = query_processor.getCanvasesInCollection(collection_id)
+                print("DF:", df)
+                if df is not None and not df.empty:
+                    for _id in df.canvas.values:
+                        result += self.getAnnotationsWithTarget(_id)
+
+        return result
 
     def getAnnotationsToManifest(self, manifest_id):  # vent
-        pass
+        result = []
+        for query_processor in self.query_processors:
+            if hasattr(query_processor, "getCanvasesInCollection"):
+                df = query_processor.getCanvasesInManifest(manifest_id)
+                if df is not None and not df.empty:
+                    for _id in df.canvas.values:
+                        result += self.getAnnotationsWithTarget(_id)
+
+        return result
 
     def getAnnotationsWithBody(self, body_id):
         result = []
@@ -139,17 +155,17 @@ class GenericQueryProcessor:
 
     def getEntityById(self, id):
         for query_processor in self.query_processors:
-            if entity := query_processor.getEntityById(id):
-                print(entity)
-                return IdentifiableEntity(entity)
-        return None
+            entity_df = query_processor.getEntityById(id)
+            if entity_df is not None and not entity_df.empty:
+                return IdentifiableEntity(entity_df.iloc[0])
+        return IdentifiableEntity(id)
 
     def getEntitiesWithCreator(self, creator_name):
         result = []
         for query_processor in self.query_processors:
             if hasattr(query_processor, "getEntitiesWithCreator"):
-                df = query_processor.getEntitiesWithCreator(creator_name).values.tolist()
-                result += [(EntityWithMetadata(row.id, row.label, row.title, row.creator)) for index, row in df.iterrows()]
+                df = query_processor.getEntitiesWithCreator(creator_name)
+                result += [(EntityWithMetadata(row.id, "", row.title, row.creator)) for index, row in df.iterrows()]
 
         return result
 
@@ -158,7 +174,7 @@ class GenericQueryProcessor:
         for query_processor in self.query_processors:
             if hasattr(query_processor, "getEntitiesWithLabel"):
                 df = query_processor.getEntitiesWithLabel(label)
-                result += [(EntityWithMetadata(row.entity, row.entity.label)) for index, row in df.iterrows()]
+                result += [(EntityWithMetadata(row.entity, "", "", "")) for index, row in df.iterrows()]
 
         return result
 
@@ -166,10 +182,8 @@ class GenericQueryProcessor:
         result = []
         for query_processor in self.query_processors:
             if hasattr(query_processor, "getEntitiesWithTitle"):
-                df = query_processor.getEntitiesWithTitle(title).values.tolist()
-                result += [(EntityWithMetadata(row.id, row.label, row.title, row.creator)) for index, row in df.iterrows()]
-
-        result = list(map(lambda a: Annotation(a.id, a.motivation, a.body, a.target), result))
+                df = query_processor.getEntitiesWithTitle(title)
+                result += [(EntityWithMetadata(row.id, "", row.title, row.creator)) for index, row in df.iterrows()]
 
         return result
 
@@ -177,9 +191,9 @@ class GenericQueryProcessor:
         result = []
         for query_processor in self.query_processors:
             if hasattr(query_processor, "getAnnotationsWithTarget"):
-                annotations = query_processor.getAnnotationsWithTarget(canvas_id).values.tolist()
+                annotations = self.getAnnotationsWithTarget(canvas_id)
                 for annotation in annotations:
-                    result += Image(annotation.body)
+                    result += [Image(annotation.body)]
 
         return result
 
@@ -188,6 +202,6 @@ class GenericQueryProcessor:
         for query_processor in self.query_processors:
             if hasattr(query_processor, "getManifestsInCollection"):
                 df = query_processor.getManifestsInCollection(collection_id)
-                result += [(Manifest(row.id, [])) for index, row in df.iterrows()]
+                result += [(Manifest(row, [])) for index, row in df.iterrows()]
 
         return result
