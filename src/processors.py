@@ -90,7 +90,6 @@ class GenericQueryProcessor:
         for query_processor in self.query_processors:
             if hasattr(query_processor, "getCanvasesInCollection"):
                 df = query_processor.getCanvasesInCollection(collection_id)
-                print("DF:", df)
                 if df is not None and not df.empty:
                     for _id in df.canvas.values:
                         result += self.getAnnotationsWithTarget(_id)

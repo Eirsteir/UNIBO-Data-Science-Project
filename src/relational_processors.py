@@ -111,3 +111,15 @@ class RelationalQueryProcessor(QueryProcessor):
             df_metadata_with_title_sql = pd.read_sql(query, con)
 
         return df_metadata_with_title_sql
+
+    def getEntityById(self, id):
+        db = self.db_path_or_url
+        with connect(db) as con:
+            query = f"SELECT * FROM Metadata WHERE id = '{id}'"
+            df = pd.read_sql(query, con)
+
+            if df.empty:
+                query = f"SELECT * FROM Annontations WHERE id = '{id}'"
+                df = pd.read_sql(query, con)
+
+        return df
